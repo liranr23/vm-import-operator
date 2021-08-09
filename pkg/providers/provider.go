@@ -40,6 +40,7 @@ type Provider interface {
 	SupportsWarmMigration() bool
 	CreateVMSnapshot() (string, error)
 	RemoveVMSnapshot(string, bool) error
+	CreateNetworks() error
 }
 
 // Mapper is interface to be used for mapping external VM to kubevirt VM

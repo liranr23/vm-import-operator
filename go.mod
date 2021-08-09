@@ -3,7 +3,6 @@ module github.com/kubevirt/vm-import-operator
 go 1.13
 
 require (
-	cloud.google.com/go v0.53.0 // indirect
 	github.com/Azure/go-autorest/autorest v0.11.10 // indirect
 	github.com/RHsyseng/operator-utils v0.0.0-20190906175225-942a3f9c85a9
 	github.com/aktau/github-release v0.7.2
@@ -11,19 +10,19 @@ require (
 	github.com/coreos/go-semver v0.3.0
 	github.com/coreos/prometheus-operator v0.38.1-0.20200424145508-7e176fda06cc
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
-	github.com/go-logr/logr v0.1.0
+	github.com/go-logr/logr v0.3.0
 	github.com/go-openapi/spec v0.19.4
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20191119172530-79f836b90111
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/machacekondra/fakeovirt v0.0.0-20200617055337-1afdfa789aab
-	github.com/onsi/ginkgo v1.12.1
-	github.com/onsi/gomega v1.10.1
+	github.com/nmstate/kubernetes-nmstate v0.47.3
+	github.com/onsi/ginkgo v1.15.0
+	github.com/onsi/gomega v1.10.5
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/openshift/client-go v0.0.0
 	github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca
-	github.com/operator-framework/api v0.3.20 // indirect
 	github.com/operator-framework/operator-lifecycle-manager v0.0.0-20191115003340-16619cd27fa5
-	github.com/operator-framework/operator-sdk v0.19.2
+	github.com/operator-framework/operator-sdk v1.4.2
 	github.com/ovirt/go-ovirt v4.3.4+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.5.1
@@ -32,21 +31,21 @@ require (
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
 	github.com/vmware/govmomi v0.23.1
 	github.com/voxelbrain/goptions v0.0.0-20180630082107-58cddc247ea2 // indirect
-	golang.org/x/tools v0.0.0-20210106214847-113979e3529a
-	gopkg.in/yaml.v2 v2.3.0
-	k8s.io/api v0.19.0-rc.2
-	k8s.io/apiextensions-apiserver v0.19.0-rc.2
-	k8s.io/apimachinery v0.19.0-rc.2
+	golang.org/x/tools v0.0.0-20210108195828-e2f9c7f1fc8e
+	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/api v0.20.2
+	k8s.io/apiextensions-apiserver v0.19.3
+	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/code-generator v0.18.6
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
-	k8s.io/utils v0.0.0-20200720150651-0bdb4ca86cbc
+	k8s.io/utils v0.0.0-20210111153108-fddb29f9d009
 	kubevirt.io/client-go v0.37.2
 	kubevirt.io/containerized-data-importer v1.27.0
 	kubevirt.io/controller-lifecycle-operator-sdk v0.1.1
 	libvirt.org/libvirt-go-xml v6.6.0+incompatible
-	sigs.k8s.io/controller-runtime v0.6.2
+	sigs.k8s.io/controller-runtime v0.8.2
 	sigs.k8s.io/yaml v1.2.0
 )
 
@@ -105,3 +104,6 @@ replace kubevirt.io/qe-tools => kubevirt.io/qe-tools v0.1.6
 replace github.com/gorilla/websocket => github.com/gorilla/websocket v1.4.2
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+
+replace github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
+

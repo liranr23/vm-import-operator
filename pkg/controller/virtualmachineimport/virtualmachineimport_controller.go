@@ -377,6 +377,14 @@ func (r *ReconcileVirtualMachineImport) Reconcile(request reconcile.Request) (re
 			return reconcile.Result{}, err
 		}
 	}
+	log.Info("Creating networks")
+	err = provider.CreateNetworks()
+	if err != nil {
+		if err == fmt.Errorf("Error while creating network") {
+			r.fail(provider, instance, Ev)
+		}
+		return reconcile.Result{RequeueAfter: SlowReQ}, err
+	}
 
 	// Create mapper:
 	mapper, err := provider.CreateMapper()

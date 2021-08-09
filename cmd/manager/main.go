@@ -23,6 +23,7 @@ import (
 	"github.com/kubevirt/vm-import-operator/pkg/controller"
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	nmstatev1beta1 "github.com/nmstate/kubernetes-nmstate/api/v1beta1"
 	"github.com/kubevirt/vm-import-operator/pkg/metrics"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -117,8 +118,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Setup Scheme for kubevirt resources
+	// Setup Scheme for cdiv1 resources
 	if err := cdiv1.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	// Setup Scheme for nmstatev1beta1 resources
+	if err := nmstatev1beta1.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}

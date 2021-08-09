@@ -3,6 +3,7 @@ package ovirtprovider
 import (
 	"errors"
 	"fmt"
+	"github.com/kubevirt/vm-import-operator/pkg/providers/ovirt/networks"
 	"strings"
 
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -77,6 +78,7 @@ type OvirtProvider struct {
 	virtualMachineManager provider.VirtualMachineManager
 	factory               pclient.Factory
 	instance              *v2vv1.VirtualMachineImport
+	networkManager        networks.NetworkCreator
 }
 
 // NewOvirtProvider creates new OvirtProvider configured with dependencies
@@ -88,6 +90,7 @@ func NewOvirtProvider(vmiObjectMeta metav1.ObjectMeta, vmiTypeMeta metav1.TypeMe
 	virtualMachineManager := virtualmachines.NewManager(client)
 	templateProvider := templates.NewTemplateProvider(tempClient)
 	osFinder := oos.OVirtOSFinder{OsMapProvider: os.NewOSMapProvider(client, ctrlConfig.OsConfigMapName(), ctrlConfig.OsConfigMapNamespace())}
+	networkManager := networks.NetworkCreator{client}
 	return OvirtProvider{
 		vmiObjectMeta:         vmiObjectMeta,
 		vmiTypeMeta:           vmiTypeMeta,
@@ -100,6 +103,7 @@ func NewOvirtProvider(vmiObjectMeta metav1.ObjectMeta, vmiTypeMeta metav1.TypeMe
 		datavolumesManager:    &datavolumesManager,
 		virtualMachineManager: &virtualMachineManager,
 		factory:               factory,
+		networkManager:        networkManager,
 	}
 }
 
@@ -225,6 +229,7 @@ func (o *OvirtProvider) LoadVM(sourceSpec v2vv1.VirtualMachineImportSourceSpec) 
 	if err != nil {
 		return err
 	}
+
 	o.vm = vm.(*ovirtsdk.Vm)
 	return nil
 }
@@ -321,6 +326,14 @@ func (o *OvirtProvider) ProcessTemplate(template *templatev1.Template, vmName *s
 	utils.UpdateLabels(vm, labels)
 	utils.UpdateAnnotations(vm, annotations)
 	return vm, nil
+}
+
+func (o *OvirtProvider) CreateNetworks() error {
+	err := o.networkManager.Create()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetVmiNamespacedName return the namespaced name of the VM import object

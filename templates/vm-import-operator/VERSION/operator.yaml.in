@@ -149,6 +149,12 @@ rules:
   - servicemonitors
   verbs:
   - '*'
+- apiGroups:
+  - nmstate.io
+  resources:
+  - nodenetworkconfigurationpolicies
+  verbs:
+  - '*'
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1

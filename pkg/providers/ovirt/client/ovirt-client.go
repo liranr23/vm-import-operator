@@ -352,6 +352,7 @@ func (client *richOvirtClient) populateNics(vm *ovirtsdk.Vm) error {
 			}
 		}
 		vm.SetNics(nics)
+		//client.connection.SystemService().HostsService().List().MustSend().MustHosts().Slice()[0].MustNetworkAttachments().Slice()[0].must
 	}
 	return nil
 }

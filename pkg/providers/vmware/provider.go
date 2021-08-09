@@ -277,6 +277,10 @@ func (r *VmwareProvider) StopVM(instance *v1beta1.VirtualMachineImport, client c
 	return nil
 }
 
+func (r *VmwareProvider) CreateNetworks() error {
+	return nil
+}
+
 // CreateVMSnapshot creates a snapshot to use in a warm migration.
 func (r *VmwareProvider) CreateVMSnapshot() (string, error) {
 	vm, err := r.getVM()

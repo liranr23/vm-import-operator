@@ -233,6 +233,7 @@ func getControllerPolicyRules() []rbacv1.PolicyRule {
 				"get",
 				"list",
 				"watch",
+				"create",
 			},
 		},
 		{
@@ -259,6 +260,20 @@ func getControllerPolicyRules() []rbacv1.PolicyRule {
 			},
 			Verbs: []string{
 				"use",
+			},
+		},
+		{
+			APIGroups: []string{
+				"nmstate.io",
+			},
+			Resources: []string{
+				"nodenetworkconfigurationpolicies",
+			},
+			Verbs: []string{
+				"get",
+				"list",
+				"watch",
+				"create",
 			},
 		},
 	}

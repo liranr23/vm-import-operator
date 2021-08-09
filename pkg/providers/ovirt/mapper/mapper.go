@@ -359,6 +359,10 @@ func (o *OvirtMapper) mapNics(networkToType map[string]string) []kubevirtv1.Inte
 
 		kubevirtNics = append(kubevirtNics, kubevirtNic)
 	}
+	newInterface := kubevirtv1.Interface{}
+	newInterface.Bridge = &kubevirtv1.InterfaceBridge{}
+	newInterface.Name = "liran-br10"
+	kubevirtNics = append(kubevirtNics, newInterface)
 
 	return kubevirtNics
 }
@@ -378,6 +382,12 @@ func (o *OvirtMapper) mapNetworks() []kubevirtv1.Network {
 		kubevirtNet.Name, _ = utils.NormalizeName(nicName)
 		kubevirtNetworks = append(kubevirtNetworks, kubevirtNet)
 	}
+	newNetwork := kubevirtv1.Network{}
+	newNetwork.Multus = &kubevirtv1.MultusNetwork{
+		NetworkName: "bridge-br10",
+	}
+	newNetwork.Name = "liran-test-bridge"
+	kubevirtNetworks = append(kubevirtNetworks, newNetwork)
 
 	return kubevirtNetworks
 }

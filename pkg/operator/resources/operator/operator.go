@@ -233,6 +233,7 @@ func getControllerPolicyRules() []rbacv1.PolicyRule {
 				"get",
 				"list",
 				"watch",
+				"create",
 			},
 		},
 		{

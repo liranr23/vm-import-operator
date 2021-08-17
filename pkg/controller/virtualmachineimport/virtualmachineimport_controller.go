@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	"os"
 	"strconv"
 	"strings"
@@ -378,6 +379,29 @@ func (r *ReconcileVirtualMachineImport) Reconcile(request reconcile.Request) (re
 		}
 	}
 
+	log.Info("Checking NAD, creating if needed")
+	netAttachDef := &netv1.NetworkAttachmentDefinition{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: "bridge-br10", Namespace: request.Namespace}, netAttachDef)
+	if err != nil {
+		log.Info("Error getting NAD")
+		if k8serrors.IsNotFound(err) {
+			log.Info("NAD wasn't found, creating...")
+			netAttach := &netv1.NetworkAttachmentDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "bridge-br10",
+					Namespace: request.Namespace,
+				},
+				Spec: netv1.NetworkAttachmentDefinitionSpec{
+					Config: createNetowrkAttachmentConfig("test", "bridge", "br-10"),
+				},
+			}
+			err = r.client.Create(context.TODO(), netAttach)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+	}
+
 	// Create mapper:
 	mapper, err := provider.CreateMapper()
 	if err != nil {
@@ -493,6 +517,17 @@ func (r *ReconcileVirtualMachineImport) Reconcile(request reconcile.Request) (re
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func createNetowrkAttachmentConfig(attName, attType, bridgeName string) string {
+	return fmt.Sprintf(`{
+	"cniVersion": "0.3.1",
+	"name": "%s",
+	"type": "%s",
+	"bridge": "%s",
+	"vlan": 100,
+	"ipam": {}
+}`, attName, attType, bridgeName)
 }
 
 func (r *ReconcileVirtualMachineImport) getDataVolume(dvName types.NamespacedName) (*cdiv1.DataVolume, error) {

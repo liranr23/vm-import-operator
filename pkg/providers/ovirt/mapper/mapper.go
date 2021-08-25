@@ -183,7 +183,7 @@ func (o *OvirtMapper) MapVM(targetVMName *string, vmSpec *kubevirtv1.VirtualMach
 	vmSpec.Spec.Template.Spec.Domain.Clock = o.mapTimeZone()
 
 	// Map networks
-	vmSpec.Spec.Template.Spec.Networks = o.mapNetworks()
+	vmSpec.Spec.Template.Spec.Networks, _ = o.MapNetworks()
 
 	// Map network interfaces
 	networkToType := o.mapNetworksToTypes(vmSpec.Spec.Template.Spec.Networks)
@@ -359,15 +359,25 @@ func (o *OvirtMapper) mapNics(networkToType map[string]string) []kubevirtv1.Inte
 
 		kubevirtNics = append(kubevirtNics, kubevirtNic)
 	}
-	newInterface := kubevirtv1.Interface{}
+	/*newInterface := kubevirtv1.Interface{}
 	newInterface.Bridge = &kubevirtv1.InterfaceBridge{}
 	newInterface.Name = "liran-br10"
-	kubevirtNics = append(kubevirtNics, newInterface)
+	kubevirtNics = append(kubevirtNics, newInterface)*/
 
 	return kubevirtNics
 }
 
-func (o *OvirtMapper) mapNetworks() []kubevirtv1.Network {
+func (o *OvirtMapper) GetNncpForNetwork(targetNic *string) *string {
+	log.Info(fmt.Sprintf("targetNic: %s", *targetNic))
+	for _, mapping := range *o.mappings.NetworkMappings {
+		if *targetNic == mapping.Target.Name {
+			return mapping.Nncp
+		}
+	}
+	return nil
+}
+
+func (o *OvirtMapper) MapNetworks() ([]kubevirtv1.Network, error) {
 	var kubevirtNetworks []kubevirtv1.Network
 	nics, _ := o.vm.Nics()
 	for _, nic := range nics.Slice() {
@@ -382,14 +392,14 @@ func (o *OvirtMapper) mapNetworks() []kubevirtv1.Network {
 		kubevirtNet.Name, _ = utils.NormalizeName(nicName)
 		kubevirtNetworks = append(kubevirtNetworks, kubevirtNet)
 	}
-	newNetwork := kubevirtv1.Network{}
+	/*newNetwork := kubevirtv1.Network{}
 	newNetwork.Multus = &kubevirtv1.MultusNetwork{
 		NetworkName: "bridge-br10",
 	}
 	newNetwork.Name = "liran-br10"
-	kubevirtNetworks = append(kubevirtNetworks, newNetwork)
+	kubevirtNetworks = append(kubevirtNetworks, newNetwork)*/
 
-	return kubevirtNetworks
+	return kubevirtNetworks, nil
 }
 
 func (o *OvirtMapper) mapNetworksToTypes(networks []kubevirtv1.Network) map[string]string {
@@ -404,7 +414,7 @@ func (o *OvirtMapper) mapNetworksToTypes(networks []kubevirtv1.Network) map[stri
 	return networkToType
 }
 
-func (o *OvirtMapper) getNetworkForNic(vnicProfile *ovirtsdk.VnicProfile) kubevirtv1.Network {
+func (o *OvirtMapper) getNetworkForNic(vnicProfile *ovirtsdk.VnicProfile) kubevirtv1.Network { //
 	kubevirtNet := kubevirtv1.Network{}
 	network, _ := vnicProfile.Network()
 	nicNetworkName, _ := network.Name()

@@ -2203,6 +2203,9 @@ func CreateVMImport() *extv1.CustomResourceDefinition {
 																				"type": {
 																					Type: "string",
 																				},
+																				"nncp": {
+																					Type: "string",
+																				},
 																			},
 																			Required: []string{"source"},
 																		},

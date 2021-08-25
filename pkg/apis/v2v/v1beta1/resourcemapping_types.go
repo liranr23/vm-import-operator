@@ -83,6 +83,8 @@ type NetworkResourceMappingItem struct {
 
 	// +optional
 	Type *string `json:"type,omitempty"`
+	// +optional
+	Nncp *string `json:"nncp,omitempty"`
 }
 
 // StorageResourceMappingItem defines the storage mapping of a single resource from the provider to kubevirt

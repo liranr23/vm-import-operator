@@ -350,6 +350,31 @@ func (r *ReconcileVirtualMachineImport) Reconcile(request reconcile.Request) (re
 		return reconcile.Result{}, err
 	}
 
+	// can be added to determine vlan and host nic from source
+	/*vm, err := provider.GetVm()
+	if err != nil {
+		return reconcile.Result{}, err
+	}*/
+
+	// Create mapper:
+	mapper, err := provider.CreateMapper()
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	vmNetworkSpec, _ := mapper.MapNetworks()
+	for _, vmNetwork := range vmNetworkSpec {
+		if vmNetwork.Multus != nil {
+			// vm.MustNics().Slice()[0].MustNetworkAttachments()
+			nadName := types.NamespacedName{Name: vmNetwork.Multus.NetworkName, Namespace: request.Namespace}
+			//err = r.checkAndAddNetworkAttachmentDefinition(nadName, mapper.GetNncpForNetwork(&vmNetwork.Multus.NetworkName))
+			err = r.checkAndAddNetworkAttachmentDefinition(nadName)
+			if err != nil {
+				return reconcile.Result{RequeueAfter: SlowReQ}, err
+			}
+		}
+	}
+
 	// Validate if it's needed at this stage of processing
 	valid, err := r.validate(instance, provider)
 	if err != nil {
@@ -377,35 +402,6 @@ func (r *ReconcileVirtualMachineImport) Reconcile(request reconcile.Request) (re
 		if err = provider.StopVM(instance, r.client); err != nil {
 			return reconcile.Result{}, err
 		}
-	}
-
-	log.Info("Checking NAD, creating if needed")
-	netAttachDef := &netv1.NetworkAttachmentDefinition{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: "bridge-br10", Namespace: request.Namespace}, netAttachDef)
-	if err != nil {
-		log.Info("Error getting NAD")
-		if k8serrors.IsNotFound(err) {
-			log.Info("NAD wasn't found, creating...")
-			netAttach := &netv1.NetworkAttachmentDefinition{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "bridge-br10",
-					Namespace: request.Namespace,
-				},
-				Spec: netv1.NetworkAttachmentDefinitionSpec{
-					Config: createNetowrkAttachmentConfig("test", "bridge", "br-10"),
-				},
-			}
-			err = r.client.Create(context.TODO(), netAttach)
-			if err != nil {
-				return reconcile.Result{}, err
-			}
-		}
-	}
-
-	// Create mapper:
-	mapper, err := provider.CreateMapper()
-	if err != nil {
-		return reconcile.Result{}, err
 	}
 
 	vmName := types.NamespacedName{Name: instance.Status.TargetVMName, Namespace: request.Namespace}
@@ -525,7 +521,6 @@ func createNetowrkAttachmentConfig(attName, attType, bridgeName string) string {
 	"name": "%s",
 	"type": "%s",
 	"bridge": "%s",
-	"vlan": 100,
 	"ipam": {}
 }`, attName, attType, bridgeName)
 }
@@ -540,6 +535,34 @@ func (r *ReconcileVirtualMachineImport) getDataVolume(dvName types.NamespacedNam
 		return nil, err
 	}
 	return dv, nil
+}
+
+func (r *ReconcileVirtualMachineImport) checkAndAddNetworkAttachmentDefinition(nadName types.NamespacedName) error {
+	log.Info("Checking NAD, creating if needed")
+	log.Info(fmt.Sprintf("nadName: %s", nadName.Name))
+	netAttachDef := &netv1.NetworkAttachmentDefinition{}
+	err := r.client.Get(context.TODO(), nadName, netAttachDef)
+	if err != nil {
+		log.Info("Error getting NAD")
+		if k8serrors.IsNotFound(err) {
+			log.Info("NAD wasn't found, creating...")
+			netAttach := &netv1.NetworkAttachmentDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      nadName.Name,
+					Namespace: nadName.Namespace,
+				},
+				Spec: netv1.NetworkAttachmentDefinitionSpec{
+					Config: createNetowrkAttachmentConfig(fmt.Sprintf(
+						"ovirt-%s", nadName.Name), "bridge", nadName.Name),
+				},
+			}
+			err = r.client.Create(context.TODO(), netAttach)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (r *ReconcileVirtualMachineImport) finalize(instance *v2vv1.VirtualMachineImport, provider provider.Provider) error {

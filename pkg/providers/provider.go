@@ -40,6 +40,7 @@ type Provider interface {
 	SupportsWarmMigration() bool
 	CreateVMSnapshot() (string, error)
 	RemoveVMSnapshot(string, bool) error
+	//GetVm() (*ovirtsdk.Vm, error)
 }
 
 // Mapper is interface to be used for mapping external VM to kubevirt VM
@@ -50,6 +51,8 @@ type Mapper interface {
 	MapDataVolumes(targetVMName *string, filesystemOverhead cdiv1.FilesystemOverhead) (map[string]cdiv1.DataVolume, error)
 	MapDisk(vmSpec *kubevirtv1.VirtualMachine, dv cdiv1.DataVolume)
 	RunningState() bool
+	MapNetworks() ([]kubevirtv1.Network, error)
+	GetNncpForNetwork(*string) *string
 }
 
 // VMStatus represents VM status

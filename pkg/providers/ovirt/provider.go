@@ -105,7 +105,7 @@ func NewOvirtProvider(vmiObjectMeta metav1.ObjectMeta, vmiTypeMeta metav1.TypeMe
 
 // GetVMStatus provides source VM status
 func (o *OvirtProvider) GetVMStatus() (provider.VMStatus, error) {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return "", err
 	}
@@ -179,7 +179,7 @@ func (o *OvirtProvider) getClient() (pclient.VMClient, error) {
 	return o.ovirtClient, nil
 }
 
-func (o *OvirtProvider) getVM() (*ovirtsdk.Vm, error) {
+func (o *OvirtProvider) GetVM() (*ovirtsdk.Vm, error) {
 	if o.vm == nil {
 		err := o.LoadVM(o.instance.Spec.Source)
 		if err != nil {
@@ -191,7 +191,7 @@ func (o *OvirtProvider) getVM() (*ovirtsdk.Vm, error) {
 
 // GetVMName return oVirt virtual machine to be imported
 func (o *OvirtProvider) GetVMName() (string, error) {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return "", err
 	}
@@ -258,7 +258,7 @@ func (o *OvirtProvider) ValidateDiskStatus(diskName string) (bool, error) {
 
 // Validate validates whether loaded previously VM and resource mapping is valid. The validation results are recorded in th VMI CR identified by vmiCrName and in case of a validation failure error is returned.
 func (o *OvirtProvider) Validate() ([]v2vv1.VirtualMachineImportCondition, error) {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (o *OvirtProvider) Validate() ([]v2vv1.VirtualMachineImportCondition, error
 
 // StopVM stop the source VM on ovirt
 func (o *OvirtProvider) StopVM(instance *v2vv1.VirtualMachineImport, rclient rclient.Client) error {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func (o *OvirtProvider) StopVM(instance *v2vv1.VirtualMachineImport, rclient rcl
 
 // FindTemplate attempts to find best match for a template based on the source VM
 func (o *OvirtProvider) FindTemplate() (*templatev1.Template, error) {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +310,7 @@ func (o *OvirtProvider) ProcessTemplate(template *templatev1.Template, vmName *s
 	if err != nil {
 		return nil, err
 	}
-	sourceVM, err := o.getVM()
+	sourceVM, err := o.GetVM()
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func (o *OvirtProvider) CreateMapper() (provider.Mapper, error) {
 	if err != nil {
 		return nil, err
 	}
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func (o *OvirtProvider) CreateMapper() (provider.Mapper, error) {
 
 // StartVM starts the source VM
 func (o *OvirtProvider) StartVM() error {
-	vm, err := o.getVM()
+	vm, err := o.GetVM()
 	if err != nil {
 		return err
 	}

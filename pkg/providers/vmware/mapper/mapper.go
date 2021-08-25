@@ -443,6 +443,10 @@ func (r *VmwareMapper) CreateEmptyVM(vmName *string) *kubevirtv1.VirtualMachine 
 	}
 }
 
+func (r *VmwareMapper) GetNncpForNetwork(targetNic *string) *string {
+	return nil
+}
+
 // MapVM maps resources from a VMware VM to a Kubevirt VM
 func (r *VmwareMapper) MapVM(targetVmName *string, vmSpec *kubevirtv1.VirtualMachine) (*kubevirtv1.VirtualMachine, error) {
 	if vmSpec.Spec.Template == nil {
@@ -495,7 +499,7 @@ func (r *VmwareMapper) MapVM(targetVmName *string, vmSpec *kubevirtv1.VirtualMac
 
 	if r.mappings != nil && r.mappings.NetworkMappings != nil {
 		// Map networks
-		vmSpec.Spec.Template.Spec.Networks, err = r.mapNetworks()
+		vmSpec.Spec.Template.Spec.Networks, err = r.MapNetworks()
 		if err != nil {
 			return nil, err
 		}
@@ -606,7 +610,7 @@ func (r *VmwareMapper) mapInputDevice(os string) []kubevirtv1.Input {
 	return []kubevirtv1.Input{tablet}
 }
 
-func (r *VmwareMapper) mapNetworks() ([]kubevirtv1.Network, error) {
+func (r *VmwareMapper) MapNetworks() ([]kubevirtv1.Network, error) {
 	r.buildNics()
 
 	var kubevirtNetworks []kubevirtv1.Network
